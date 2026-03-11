@@ -7,10 +7,10 @@ import { getDictionary } from '@/i18n/get-dictionary';
 import { BOOKMAKER_CONFIGS, buildAffiliateUrl } from '@/lib/config/bookmakers';
 import { BookmakerBonusCard } from '@/components/bookmakers/BookmakerBonusBadge';
 import { GamblingDisclaimer } from '@/components/gambling/GamblingDisclaimer';
+import { getBookmakerReview } from '@/lib/api/wordpress';
 
-export const revalidate = 86400;
+export const revalidate = 3600;
 
-// Static bookmaker metadata (non-translatable)
 const bookmakerMeta: Record<string, { name: string; rating: number; slug: string }> = {
   bet365:   { name: 'Bet365', rating: 4.7, slug: 'bet365' },
   unibet:   { name: 'Unibet', rating: 4.5, slug: 'unibet' },
@@ -19,7 +19,6 @@ const bookmakerMeta: Record<string, { name: string; rating: number; slug: string
   bwin:     { name: 'bwin', rating: 4.2, slug: 'bwin' },
 };
 
-// MMA betting markets (universal terms, not translated)
 const bookmakerMarkets: Record<string, string[]> = {
   bet365: ['Match Winner', 'Method of Victory', 'Over/Under Rounds', 'Round Betting', 'Round Group Betting', 'Fight to Distance', 'Double Chance', 'Fighter Specials'],
   unibet: ['Match Winner', 'Method of Victory', 'Over/Under Rounds', 'Round Betting', 'Fight to Distance', 'Total Rounds'],
@@ -38,11 +37,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const bm = bookmakerMeta[slug];
   if (!bm) return { title: dict.common.notFound };
 
+  const review = await getBookmakerReview(slug);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://knockodds.com';
 
+  const title = review?.seo_title || `${bm.name} UFC: ${dict.bookmakers.readReview} ${new Date().getFullYear()}`;
+  const description = review?.meta_description || `${bm.name} - ${dict.bookmakers.description}`;
+
   return {
-    title: `${bm.name} UFC: ${dict.bookmakers.readReview} ${new Date().getFullYear()}`,
-    description: `${bm.name} - ${dict.bookmakers.description}`,
+    title,
+    description,
     alternates: {
       canonical: `${localePrefix(locale)}/bookmakers/${slug}`,
       languages: Object.fromEntries(
@@ -65,12 +68,20 @@ export default async function BookmakerPage({ params }: Props) {
   const p = localePrefix(locale);
   const markets = bookmakerMarkets[slug] || [];
 
-  // Get bookmaker-specific translated content from dictionary
+  // Fetch WP review content (or null if not yet created in WP)
+  const review = await getBookmakerReview(slug);
+
+  // Use WP content if available, fallback to dict translations
   const bmDict = (dict.bookmakers as any).reviews?.[slug];
-  const description = bmDict?.description || dict.bookmakers.description;
-  const pros = bmDict?.pros || [];
-  const cons = bmDict?.cons || [];
-  const verdict = bmDict?.verdict || '';
+  const h1 = review?.custom_h1 || `${bm.name}: ${dict.bookmakers.readReview}`;
+  const rating = review?.rating || bm.rating;
+  const introText = review?.intro_text || '';
+  const reviewH2 = review?.review_h2 || '';
+  const reviewContent = review?.review_content || '';
+  const pros = review?.pros?.length ? review.pros : (bmDict?.pros || []);
+  const cons = review?.cons?.length ? review.cons : (bmDict?.cons || []);
+  const verdictText = review?.verdict_text || bmDict?.verdict || '';
+  const ctaText = review?.cta_text || `${dict.bookmakers.visitSite} - ${bm.name}`;
 
   return (
     <>
@@ -85,19 +96,16 @@ export default async function BookmakerPage({ params }: Props) {
         <div className="card p-8 mb-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-heading font-bold mb-2">
-                {bm.name}: {dict.bookmakers.readReview}
-              </h1>
+              <h1 className="text-3xl md:text-4xl font-heading font-bold mb-2">{h1}</h1>
               <div className="flex items-center gap-3">
-                <span className="text-accent-gold text-lg">{'★'.repeat(Math.floor(bm.rating))}</span>
-                <span className="text-gray-500">{bm.rating}/5</span>
+                <span className="text-accent-gold text-lg">{'★'.repeat(Math.floor(rating))}{rating % 1 >= 0.5 ? '½' : ''}</span>
+                <span className="text-gray-500">{rating}/5</span>
               </div>
             </div>
             <a href={affiliateUrl} target="_blank" rel="noopener noreferrer sponsored" className="btn-primary">
-              {dict.bookmakers.visitSite} &rarr;
+              {ctaText} &rarr;
             </a>
           </div>
-          {/* Currency-aware bonus card */}
           <div className="mt-4">
             <BookmakerBonusCard
               slug={slug}
@@ -108,11 +116,26 @@ export default async function BookmakerPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Description */}
-        {description && (
+        {/* Intro text from WP */}
+        {introText && (
           <div className="card p-6 mb-8">
-            <h2 className="text-2xl font-heading font-bold mb-4">{bm.name} - {dict.bookmakers.title}</h2>
-            <p className="text-gray-600">{description}</p>
+            <div
+              className="prose prose-lg max-w-none prose-headings:font-heading prose-a:text-primary"
+              dangerouslySetInnerHTML={{ __html: introText }}
+            />
+          </div>
+        )}
+
+        {/* Review section from WP */}
+        {(reviewH2 || reviewContent) && (
+          <div className="card p-6 mb-8">
+            {reviewH2 && <h2 className="text-2xl font-heading font-bold mb-4">{reviewH2}</h2>}
+            {reviewContent && (
+              <div
+                className="prose prose-lg max-w-none prose-headings:font-heading prose-a:text-primary"
+                dangerouslySetInnerHTML={{ __html: reviewContent }}
+              />
+            )}
           </div>
         )}
 
@@ -163,12 +186,15 @@ export default async function BookmakerPage({ params }: Props) {
         )}
 
         {/* Verdict */}
-        {verdict && (
+        {verdictText && (
           <div className="card p-6 mb-8 border-primary/30">
             <h2 className="text-2xl font-heading font-bold mb-4">{dict.bookmakers.verdict}</h2>
-            <p className="text-gray-600">{verdict}</p>
-            <a href={affiliateUrl} target="_blank" rel="noopener noreferrer sponsored" className="btn-primary mt-4 inline-block">
-              {dict.bookmakers.visitSite} - {bm.name} &rarr;
+            <div
+              className="prose max-w-none prose-headings:font-heading prose-a:text-primary mb-4"
+              dangerouslySetInnerHTML={{ __html: verdictText }}
+            />
+            <a href={affiliateUrl} target="_blank" rel="noopener noreferrer sponsored" className="btn-primary inline-block">
+              {ctaText} &rarr;
             </a>
           </div>
         )}

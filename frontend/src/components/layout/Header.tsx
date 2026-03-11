@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { type Locale, localePrefix } from '@/i18n/config';
 import type { Dictionary } from '@/i18n/get-dictionary';
+import type { SiteSettings } from '@/lib/api/wordpress';
 import { PreferencesButton } from '@/components/preferences/PreferencesButton';
 import { MoreDropdown } from './MoreDropdown';
 import { MobileMenu } from './MobileMenu';
@@ -9,12 +10,17 @@ import { UserMenu } from './UserMenu';
 interface HeaderProps {
   locale: Locale;
   dict: Dictionary;
+  siteSettings?: SiteSettings | null;
 }
 
-export function Header({ locale, dict }: HeaderProps) {
+export function Header({ locale, dict, siteSettings }: HeaderProps) {
   const p = localePrefix(locale);
 
-  const navItems = [
+  // Use WP nav if configured, otherwise fallback to default
+  const wpNav = siteSettings?.header_nav;
+  const hasWpNav = wpNav && wpNav.length > 0;
+
+  const defaultNavItems = [
     { href: `${p}/` , label: dict.nav.home },
     { href: `${p}/news`, label: dict.nav.news },
     { href: `${p}/fighters`, label: dict.nav.fighters },
@@ -23,6 +29,10 @@ export function Header({ locale, dict }: HeaderProps) {
     { href: `${p}/leaderboard`, label: dict.nav.leaderboard || 'Leaderboard' },
     { href: `${p}/odds`, label: dict.nav.odds },
   ];
+
+  const navItems = hasWpNav
+    ? wpNav.map(item => ({ href: item.href.replace('{locale}', p), label: item.label }))
+    : defaultNavItems;
 
   const moreItems = [
     { href: `${p}/bookmakers`, label: dict.nav.bookmakers },

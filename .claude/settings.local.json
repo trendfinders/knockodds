@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command \"Set-Location ''c:/Users/user/Documents/ufc best site/frontend''; npx tsc --noEmit 2>&1 | Select-String -Pattern ''\\(admin|shop|account|knock|affiliate|user-profile|UserMenu|Header\\\\.tsx|pageview\\)'' | Select-Object -First 30\")",
+      "Bash(cmd /c \"cd /d c:\\\\Users\\\\user\\\\Documents\\\\ufc best site\\\\frontend && npx tsc --noEmit 2>&1\")"
+    ]
+  }
+}

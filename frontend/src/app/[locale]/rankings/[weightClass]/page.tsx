@@ -5,18 +5,14 @@ import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { FighterAvatar } from '@/components/common/FighterAvatar';
 import { type Locale, i18n, localeHtmlLang, localePrefix } from '@/i18n/config';
 import { getDictionary } from '@/i18n/get-dictionary';
-import { weightClasses, getWeightClassBySlug, getAllWeightClassSlugs } from '@/lib/config/weight-classes';
+import { weightClasses, getWeightClassBySlug } from '@/lib/config/weight-classes';
 import { mmaApi } from '@/lib/api/mma-api';
 import type { Fighter, FighterRecord } from '@/lib/types/mma-api';
 
-export const revalidate = 3600; // 1 hour
+export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{ locale: string; weightClass: string }>;
-}
-
-export function generateStaticParams() {
-  return getAllWeightClassSlugs().map((weightClass) => ({ weightClass }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

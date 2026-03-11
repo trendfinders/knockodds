@@ -5,6 +5,7 @@ import { type Locale, i18n, localeHtmlLang, localePrefix } from '@/i18n/config';
 import { getDictionary } from '@/i18n/get-dictionary';
 import { LeaderboardTable } from '@/components/leaderboard/LeaderboardTable';
 import { BettingPromoWidget } from '@/components/widgets/BettingPromoWidget';
+import { LatestNewsWidget } from '@/components/widgets/LatestNewsWidget';
 
 export const revalidate = 300;
 
@@ -96,6 +97,12 @@ export default async function LeaderboardPage({ params }: Props) {
             </div>
           </aside>
         </div>
+
+        <LatestNewsWidget
+          locale={locale}
+          title={dict.home.latestNews}
+          viewAllLabel={dict.common.viewAll}
+        />
       </div>
     </>
   );

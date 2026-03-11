@@ -210,6 +210,88 @@ function getMockArticles(page: number, perPage: number): { articles: HomeArticle
   return { articles, total };
 }
 
+// Related news (exclude current, latest 4)
+export async function getRelatedNews(excludeSlug: string, limit = 4): Promise<WPNewsPost[]> {
+  try {
+    const { data } = await wpFetchPaginated<WPNewsPost>('/wp/v2/news', {
+      per_page: String(limit + 1),
+      orderby: 'date',
+      order: 'desc',
+    });
+    return data.filter(p => p.slug !== excludeSlug).slice(0, limit);
+  } catch {
+    return [];
+  }
+}
+
+// Latest news (for widgets)
+export async function getLatestNews(limit = 10): Promise<WPNewsPost[]> {
+  try {
+    const { data } = await wpFetchPaginated<WPNewsPost>('/wp/v2/news', {
+      per_page: String(limit),
+      orderby: 'date',
+      order: 'desc',
+    }, { revalidate: 300 });
+    return data;
+  } catch {
+    return [];
+  }
+}
+
+// Bookmaker review (custom endpoint)
+export interface BookmakerReview {
+  id: number;
+  bookmaker_slug: string;
+  seo_title: string;
+  meta_description: string;
+  custom_h1: string;
+  intro_text: string;
+  review_h2: string;
+  review_content: string;
+  pros: string[];
+  cons: string[];
+  verdict_text: string;
+  cta_text: string;
+  rating: number;
+  featured_image_url: string;
+}
+
+export async function getBookmakerReview(slug: string): Promise<BookmakerReview | null> {
+  try {
+    const data = await wpFetch<BookmakerReview | null>(`/ufc/v1/bookmaker-review/${slug}`, undefined, { revalidate: 3600 });
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+// Site settings (header/footer nav from WP)
+export interface SiteNavItem {
+  href: string;
+  label: string;
+}
+
+export interface SiteFooterColumn {
+  title: string;
+  links: SiteNavItem[];
+}
+
+export interface SiteSettings {
+  header_nav: SiteNavItem[];
+  footer_col1: SiteFooterColumn | null;
+  footer_col2: SiteFooterColumn | null;
+  footer_col3: SiteFooterColumn | null;
+  footer_disclaimer: string;
+}
+
+export async function getSiteSettings(): Promise<SiteSettings | null> {
+  try {
+    return await wpFetch<SiteSettings>('/ufc/v1/site-settings', undefined, { revalidate: 300 });
+  } catch {
+    return null;
+  }
+}
+
 // JWT Auth
 export async function getJWTToken(): Promise<string> {
   const res = await fetch(`${WP_URL}/wp-json/jwt-auth/v1/token`, {

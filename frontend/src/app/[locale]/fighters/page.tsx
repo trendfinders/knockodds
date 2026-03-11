@@ -8,6 +8,7 @@ import { WeightClassFilter } from '@/components/fighters/WeightClassFilter';
 import { FighterAvatar } from '@/components/common/FighterAvatar';
 import { weightClasses } from '@/lib/config/weight-classes';
 import type { Fighter } from '@/lib/types/mma-api';
+import { LatestNewsWidget } from '@/components/widgets/LatestNewsWidget';
 
 export const revalidate = 3600;
 
@@ -111,6 +112,12 @@ export default async function FightersPage({ params, searchParams }: Props) {
           {q && <p className="text-sm mt-2">{dict.fighters.searchFighter}</p>}
         </div>
       )}
+
+      <LatestNewsWidget
+        locale={locale}
+        title={dict.home.latestNews}
+        viewAllLabel={dict.common.viewAll}
+      />
     </div>
   );
 }

@@ -11,6 +11,7 @@ import { AuthProvider } from '@/components/auth/AuthProvider';
 import { PageviewTracker } from '@/components/tracking/PageviewTracker';
 import { i18n, localeHtmlLang, localePrefix, type Locale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/get-dictionary';
+import { getSiteSettings } from '@/lib/api/wordpress';
 
 export function generateStaticParams() {
   return i18n.locales.map((locale) => ({ locale }));
@@ -54,7 +55,10 @@ export default async function LocaleLayout({ children, params }: Props) {
     notFound();
   }
 
-  const dict = await getDictionary(locale as Locale);
+  const [dict, siteSettings] = await Promise.all([
+    getDictionary(locale as Locale),
+    getSiteSettings(),
+  ]);
 
   return (
     <>
@@ -64,9 +68,9 @@ export default async function LocaleLayout({ children, params }: Props) {
       <AuthProvider>
         <PageviewTracker />
         <PreferencesProvider locale={locale}>
-          <Header locale={locale as Locale} dict={dict} />
+          <Header locale={locale as Locale} dict={dict} siteSettings={siteSettings} />
           <main className="flex-1">{children}</main>
-          <Footer locale={locale as Locale} dict={dict} />
+          <Footer locale={locale as Locale} dict={dict} siteSettings={siteSettings} />
           <PreferencesPopup />
         </PreferencesProvider>
       </AuthProvider>

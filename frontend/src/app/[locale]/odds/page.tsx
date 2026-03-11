@@ -8,6 +8,7 @@ import { getBookmakersForCountry, getBookmakerConfig, buildAffiliateUrl, LOCALE_
 import { FormattedOddPair } from '@/components/odds/FormattedOdd';
 import { GamblingDisclaimer } from '@/components/gambling/GamblingDisclaimer';
 import { FighterAvatar } from '@/components/common/FighterAvatar';
+import { LatestNewsWidget } from '@/components/widgets/LatestNewsWidget';
 import type { Fight, Odds } from '@/lib/types/mma-api';
 
 export const revalidate = 3600; // page itself revalidates hourly, data comes from cache
@@ -174,6 +175,12 @@ export default async function OddsPage({ params }: Props) {
       )}
 
       <GamblingDisclaimer dict={dict} />
+
+      <LatestNewsWidget
+        locale={locale}
+        title={dict.home.latestNews}
+        viewAllLabel={dict.common.viewAll}
+      />
     </div>
   );
 }

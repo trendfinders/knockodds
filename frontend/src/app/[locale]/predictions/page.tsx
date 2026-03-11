@@ -7,6 +7,7 @@ import { FighterAvatar } from '@/components/common/FighterAvatar';
 import { BettingPromoWidget } from '@/components/widgets/BettingPromoWidget';
 import { OddsBadge } from '@/components/widgets/OddsBadge';
 import { GamblingDisclaimer } from '@/components/gambling/GamblingDisclaimer';
+import { LatestNewsWidget } from '@/components/widgets/LatestNewsWidget';
 import type { Fight, Odds } from '@/lib/types/mma-api';
 
 export const revalidate = 3600;
@@ -145,6 +146,11 @@ export default async function PredictionsPage({ params }: Props) {
           </div>
         </aside>
       </div>
+      <LatestNewsWidget
+        locale={locale}
+        title={dict.home.latestNews}
+        viewAllLabel={dict.common.viewAll}
+      />
     </div>
   );
 }

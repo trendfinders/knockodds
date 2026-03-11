@@ -5,6 +5,7 @@ import { getDictionary } from '@/i18n/get-dictionary';
 import { BOOKMAKER_CONFIGS, buildAffiliateUrl } from '@/lib/config/bookmakers';
 import { BookmakerBonusBadge } from '@/components/bookmakers/BookmakerBonusBadge';
 import { GamblingDisclaimer } from '@/components/gambling/GamblingDisclaimer';
+import { LatestNewsWidget } from '@/components/widgets/LatestNewsWidget';
 
 export const revalidate = 86400;
 
@@ -112,6 +113,12 @@ export default async function BookmakersPage({ params }: Props) {
       <div className="mt-8">
         <GamblingDisclaimer dict={dict} />
       </div>
+
+      <LatestNewsWidget
+        locale={locale}
+        title={dict.home.latestNews}
+        viewAllLabel={dict.common.viewAll}
+      />
     </div>
   );
 }

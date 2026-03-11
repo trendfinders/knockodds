@@ -1,0 +1,19 @@
+{
+  "name": "knockodds",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "automation"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=frontend",
+    "build": "npm run build --workspace=frontend",
+    "wp:up": "cd wordpress && docker compose up -d",
+    "wp:down": "cd wordpress && docker compose down",
+    "sync:all": "npm run sync:fights --workspace=automation && npm run sync:fighters --workspace=automation",
+    "fetch:odds": "npm run fetch:odds --workspace=automation",
+    "scrape:news": "npm run scrape:news --workspace=automation",
+    "generate:pronostics": "npm run generate:pronostics --workspace=automation"
+  }
+}

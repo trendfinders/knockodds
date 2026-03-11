@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  wordpress:
+    image: wordpress:6-php8.2-apache
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: ${WP_DB_PASSWORD:-wordpress_pass}
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DEBUG: ${WP_DEBUG:-false}
+    volumes:
+      - wordpress_data:/var/www/html
+      - ./wp-content/themes/ufc-headless:/var/www/html/wp-content/themes/ufc-headless
+      - ./wp-content/mu-plugins:/var/www/html/wp-content/mu-plugins
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: ${WP_DB_PASSWORD:-wordpress_pass}
+      MYSQL_ROOT_PASSWORD: ${WP_DB_ROOT_PASSWORD:-root_pass}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: wordpress
+      PMA_PASSWORD: ${WP_DB_PASSWORD:-wordpress_pass}
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  wordpress_data:
+  db_data:

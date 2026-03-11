@@ -3,6 +3,7 @@
     { "path": "/api/cron/fights", "schedule": "0 6 * * *" },
     { "path": "/api/cron/odds", "schedule": "0 */2 * * *" },
     { "path": "/api/cron/news", "schedule": "*/30 * * * *" },
+    { "path": "/api/cron/pronostics", "schedule": "0 */4 * * *" },
     { "path": "/api/cron/settle-predictions", "schedule": "0 */2 * * *" },
     { "path": "/api/cron/monthly-reset", "schedule": "5 0 1 * *" },
     { "path": "/api/cron/pageview-rewards", "schedule": "0 0 * * *" },

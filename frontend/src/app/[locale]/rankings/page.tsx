@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { type Locale, i18n, localeHtmlLang, localePrefix } from '@/i18n/config';
 import { getDictionary } from '@/i18n/get-dictionary';
+import { LatestNewsWidget } from '@/components/widgets/LatestNewsWidget';
 import { weightClasses } from '@/lib/config/weight-classes';
 
 export const revalidate = 3600;
@@ -92,6 +93,12 @@ export default async function RankingsPage({ params }: Props) {
           ))}
         </div>
       </section>
+
+      <LatestNewsWidget
+        locale={locale}
+        title={dict.home.latestNews}
+        viewAllLabel={dict.common.viewAll}
+      />
     </div>
   );
 }

@@ -1,0 +1,30 @@
+{
+  "name": "@ufc-best-site/automation",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync:fights": "tsx src/jobs/sync-fights.ts",
+    "sync:fighters": "tsx src/jobs/sync-fighters.ts",
+    "fetch:odds": "tsx src/jobs/fetch-odds.ts",
+    "scrape:news": "tsx src/jobs/scrape-news.ts",
+    "generate:pronostics": "tsx src/jobs/generate-pronostics.ts",
+    "process:images": "tsx src/jobs/process-images.ts",
+    "optimize:seo": "tsx src/jobs/optimize-seo.ts"
+  },
+  "dependencies": {
+    "openai": "^4.50.0",
+    "sharp": "^0.33.0",
+    "@aws-sdk/client-s3": "^3.600.0",
+    "rss-parser": "^3.13.0",
+    "cheerio": "^1.0.0",
+    "node-cron": "^3.0.3",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.16.0",
+    "typescript": "^5.5.0",
+    "@types/node": "^20.14.0",
+    "@types/node-cron": "^3.0.11"
+  }
+}
