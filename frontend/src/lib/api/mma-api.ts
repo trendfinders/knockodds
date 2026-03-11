@@ -2,6 +2,11 @@ import type { MMAResponse, Fighter, FighterRecord, Fight, FightResult, FighterSt
 
 const MMA_BASE = 'https://v1.mma.api-sports.io';
 
+// During `next build`, 29 parallel workers all call API-Sports simultaneously,
+// exhausting the rate limit. Skip API calls at build time — data is populated
+// by cron jobs after deployment, and by ISR revalidation at runtime.
+const IS_BUILD_TIME = process.env.NEXT_PHASE === 'phase-production-build';
+
 class MMAApiClient {
   private get apiKey(): string {
     const key = process.env.API_SPORTS_KEY;
@@ -10,6 +15,11 @@ class MMAApiClient {
   }
 
   private async fetch<T>(endpoint: string, params?: Record<string, string>, revalidate = 300): Promise<MMAResponse<T>> {
+    // Return empty response during build to avoid rate limit exhaustion
+    if (IS_BUILD_TIME) {
+      return { get: endpoint, parameters: params || {}, errors: [], results: 0, response: [] as T } as MMAResponse<T>;
+    }
+
     const url = new URL(`${MMA_BASE}/${endpoint}`);
     if (params) {
       Object.entries(params).forEach(([k, v]) => {

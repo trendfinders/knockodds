@@ -20,9 +20,23 @@ export interface CachedOddsData {
   lastUpdated: string;
 }
 
+const EMPTY_DATA: CachedOddsData = {
+  upcomingFights: [],
+  recentResults: [],
+  odds: {},
+  lastUpdated: new Date().toISOString(),
+};
+
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function fetchAllOddsData(): Promise<CachedOddsData> {
+  // Skip API calls during build — 29 parallel workers would exhaust rate limits.
+  // The /api/cron/odds endpoint populates the cache after deployment.
+  if (process.env.NEXT_PHASE === 'phase-production-build') {
+    console.log('[ODDS-CACHE] Build time detected, returning empty data (cron will populate after deploy)');
+    return EMPTY_DATA;
+  }
+
   console.log('[ODDS-CACHE] Starting full odds data fetch...');
   const start = Date.now();
 
