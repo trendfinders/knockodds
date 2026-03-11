@@ -116,7 +116,7 @@ async function isAlreadyPublished(sourceUrl: string, token: string): Promise<boo
     url.searchParams.set('meta_value', sourceUrl);
     url.searchParams.set('per_page', '1');
     const res = await fetch(url.toString(), {
-      headers: { 'Authorization': `Bearer ${token}` },
+      headers: { 'Authorization': token },
     });
     if (!res.ok) return false;
     const data = await res.json();
@@ -145,7 +145,7 @@ async function publishToWP(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
+      'Authorization': token,
     },
     body: JSON.stringify({
       title: data.title,

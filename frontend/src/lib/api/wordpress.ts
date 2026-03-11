@@ -17,7 +17,7 @@ async function wpFetch<T>(endpoint: string, params?: Record<string, string>, opt
 
   const headers: Record<string, string> = {};
   if (options.token) {
-    headers['Authorization'] = `Bearer ${options.token}`;
+    headers['Authorization'] = options.token;
   }
 
   const res = await fetch(url.toString(), {
@@ -41,7 +41,7 @@ async function wpFetchPaginated<T>(endpoint: string, params?: Record<string, str
 
   const headers: Record<string, string> = {};
   if (options.token) {
-    headers['Authorization'] = `Bearer ${options.token}`;
+    headers['Authorization'] = options.token;
   }
 
   const res = await fetch(url.toString(), {
@@ -115,13 +115,13 @@ export async function getCategories(): Promise<WPCategory[]> {
   return wpFetch<WPCategory[]>('/wp/v2/categories', { per_page: '100' }, { revalidate: 3600 });
 }
 
-// Publishing (server-side only, requires JWT)
+// Publishing (server-side only, requires auth)
 export async function publishPost(type: string, data: Record<string, any>, token: string): Promise<WPPost> {
   const res = await fetch(`${WP_API}/wp/v2/${type}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+      'Authorization': token
     },
     body: JSON.stringify({ ...data, status: 'publish' })
   });
@@ -292,19 +292,16 @@ export async function getSiteSettings(): Promise<SiteSettings | null> {
   }
 }
 
-// JWT Auth
-export async function getJWTToken(): Promise<string> {
-  const res = await fetch(`${WP_URL}/wp-json/jwt-auth/v1/token`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      username: process.env.WP_API_USER,
-      password: process.env.WP_API_PASSWORD
-    }),
-    cache: 'no-store'
-  });
+// Auth — uses WordPress Application Passwords (built-in WP 5.6+, no plugin needed)
+// WP_API_USER = WordPress username, WP_API_PASSWORD = Application Password (from WP admin > Users > Application Passwords)
+export function getAuthHeader(): string {
+  const user = process.env.WP_API_USER;
+  const pass = process.env.WP_API_PASSWORD;
+  if (!user || !pass) throw new Error('WP_API_USER and WP_API_PASSWORD environment variables are required');
+  return `Basic ${Buffer.from(`${user}:${pass}`).toString('base64')}`;
+}
 
-  if (!res.ok) throw new Error('JWT auth failed');
-  const data = await res.json();
-  return data.token;
+// Legacy compat — crons call getJWTToken() but we return Basic auth header instead
+export async function getJWTToken(): Promise<string> {
+  return getAuthHeader();
 }

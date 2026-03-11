@@ -20,7 +20,7 @@ async function hasPrediction(fightApiId: number, token: string): Promise<boolean
     url.searchParams.set('meta_value', String(fightApiId));
     url.searchParams.set('per_page', '1');
     const res = await fetch(url.toString(), {
-      headers: { 'Authorization': `Bearer ${token}` },
+      headers: { 'Authorization': token },
     });
     if (!res.ok) return false;
     const data = await res.json();
@@ -158,7 +158,7 @@ Generate a detailed pronostic for this fight.`;
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            'Authorization': token,
           },
           body: JSON.stringify({
             title: pronostic.title,
