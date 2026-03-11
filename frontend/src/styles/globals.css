@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-white text-dark antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-bold tracking-tight text-dark;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-lg border border-gray-100 overflow-hidden transition-all hover:shadow-md;
+  }
+
+  .section-title {
+    @apply text-xs font-bold uppercase tracking-widest text-primary border-b-2 border-primary pb-1 mb-4 inline-block;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-live {
+    @apply badge bg-red-50 text-red-600 animate-pulse;
+  }
+
+  .badge-category {
+    @apply badge bg-red-50 text-primary;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center px-6 py-3 border border-primary text-primary font-semibold rounded-lg hover:bg-primary hover:text-white transition-colors;
+  }
+
+  .container-page {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
+  }
+
+  .content-divider {
+    @apply border-t border-gray-100 my-6;
+  }
+
+  .gambling-disclaimer {
+    @apply text-xs text-gray-400 mt-4 p-3 border border-gray-100 rounded-lg bg-surface-alt;
+  }
+}
