@@ -27,14 +27,11 @@ build/
 .DS_Store
 Thumbs.db
 
-# WordPress
-wordpress/wp-content/plugins/*
-!wordpress/wp-content/plugins/.gitkeep
-wordpress/wp-content/uploads/
-
-# Docker volumes
-wordpress/db_data/
-wordpress/wordpress_data/
+# Local-only folders (not deployed to Vercel)
+wordpress/
+automation/
+agent-skill-creator-main/
+superpowers-main/
 
 # Logs
 *.log
