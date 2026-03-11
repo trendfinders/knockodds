@@ -7,6 +7,5 @@
     { "path": "/api/cron/monthly-reset", "schedule": "5 0 1 * *" },
     { "path": "/api/cron/pageview-rewards", "schedule": "0 0 * * *" },
     { "path": "/api/cron/prize-pool", "schedule": "0 0 * * *" }
-
   ]
 }
